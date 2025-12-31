@@ -197,10 +197,10 @@ jobs:
           echo "FILE_CONF=$FILE_CONF" >> $GITHUB_ENV
           echo "FILE_BASE=$FILE_BASE" >> $GITHUB_ENV
 
-          # 动态调用源码清单仓库，仓库优先级：1️⃣ OnePlusOSS → 2️⃣ Numbersf(可换)
+          # 动态调用源码清单仓库，仓库优先级：1️⃣ Xray318 → 2️⃣ Numbersf(可换)
           DYNAMIC_REPO_INPUT="${{ github.event.inputs.DYNAMIC_REPO }}"
           declare -A REPOS
-          REPOS["OnePlusOSS"]="https://api.github.com/repos/OnePlusOSS/kernel_manifest"
+          REPOS["Xray318"]="https://api.github.com/repos/Xray318/kernel_manifest"
           REPOS["Dynamic"]="https://api.github.com/repos/${DYNAMIC_REPO_INPUT}/kernel_manifest"
 
           FOUND_REPO=""
@@ -232,8 +232,8 @@ jobs:
           }
 
           # 默认仓库寻找文件
-          if check_repo "OnePlusOSS" "${REPOS["OnePlusOSS"]}"; then
-            echo "MANIFEST_REPO=OnePlusOSS" >> $GITHUB_ENV
+          if check_repo "Xray318" "${REPOS["Xray318"]}"; then
+            echo "MANIFEST_REPO=Xray318" >> $GITHUB_ENV
             echo "MANIFEST_BRANCH=$FOUND_BRANCH" >> $GITHUB_ENV
           fi
 
