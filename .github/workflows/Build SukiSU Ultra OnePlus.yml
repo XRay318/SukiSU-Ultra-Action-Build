@@ -14,8 +14,8 @@ on:
           - oneplus_ace_race_v
           - oneplus_10_pro_v
           - oneplus_10t_v
-          - oneplus_11r_v
-          - oneplus_ace2_v
+          - oneplus_11r_b
+          - oneplus_ace2_b
           - oneplus_pad_lite_v
           - oneplus_pad_mt6983_v
           - oneplus_ace_2v_v
@@ -126,7 +126,7 @@ on:
         type: boolean
         description: "是否添加Unicode零宽绕过修复与内存优化补丁？"
         required: true
-        default: true
+        default: false
       SCHED:
         type: boolean
         description: "是否添加风驰驱动1.0？"
@@ -747,14 +747,12 @@ jobs:
           patch -p1 --forward < "${PATCH_DIR}/optimized_mem_operations.patch"
           patch -p1 --forward < "${PATCH_DIR}/file_struct_8bytes_align.patch"
           patch -p1 --forward < "${PATCH_DIR}/reduce_cache_pressure.patch"
+          patch -p1 --forward < "${PATCH_DIR}/unicode-bypass_fix_all.patch"
           if [ "$KV1" -lt 6 ]; then
             patch -p1 --forward < "${PATCH_DIR}/clear_page_16bytes_align.patch"
-            echo "Patching unicode!"
             patch -p1 --forward < "${PATCH_DIR}/unicode_bypass_fix_6.1-.patch"
           else
             cat "${PATCH_DIR}/clear_page_16bytes_align.patch" | sed -e 's/SYM_FUNC_START_PI(clear_page)/SYM_FUNC_START_PI(__pi_clear_page)/' | patch -p1 -F3 --forward
-            echo "Patching unicode!"
-            patch -p1 --forward < "${PATCH_DIR}/unicode_bypass_fix_6.1+.patch"
           fi
 
       - name: Apply ZRAM
@@ -794,7 +792,7 @@ jobs:
           cd kernel_workspace/kernel_platform/common
           echo "正在启用内核级基带保护支持…"
           curl -LSs https://raw.githubusercontent.com/vc-teahouse/Baseband-guard/main/setup.sh | bash
-          sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/lockdown/lockdown,baseband_guard/ } }' ./security/Kconfig
+          sed -i '/^config LSM$/,/^help$/{ /^[[:space:]]*default/ { /baseband_guard/! s/selinux/selinux,baseband_guard/ } }' ./security/Kconfig
 
       # 配置信息，带*为附加项目，具有一定危险性和不确定性
       - name: Add Configuration Settings
@@ -1057,7 +1055,8 @@ jobs:
       - name: Apply patch_linux and Replace Image
         if: ${{ github.event.inputs.KPM == 'true' }}
         run: |
-          PATCH_DIR="${GITHUB_WORKSPACE}/kernel_workspace/SukiSU_patch/kpm"
+          # PATCH_DIR="${GITHUB_WORKSPACE}/kernel_workspace/SukiSU_patch/kpm"
+          PATCH_DIR="${GITHUB_WORKSPACE}/kernel_workspace/Action-Build/patches"
           OUT_DIR="${GITHUB_WORKSPACE}/kernel_workspace/kernel_platform/out/Final-Image-Find"
           cd "${OUT_DIR}"
           cp "${PATCH_DIR}/patch_linux" .
